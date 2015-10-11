@@ -4,6 +4,7 @@ Client is Mac
 
 |Version|
 |:------|
+|vagrant 1.7.2|
 |ansible 1.7.2|
 
 Host(node)
@@ -14,7 +15,7 @@ Host(node)
 |git 1.8.3.1|
 |rbenv 0.4.0-168-gefb187f|
 |ruby 2.2.2p95|
-|Rails 4.2.4|
+|rails 4.2.4|
 |bundler 1.10.6|
 
 # Requirements
