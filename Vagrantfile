@@ -71,4 +71,6 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
     ansible.limit = 'all'
   end
 
+  ## Add for sharing ssh key host and guest os
+  config.ssh.forward_agent = true
 end
