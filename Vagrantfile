@@ -34,7 +34,7 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
     db.ssh.forward_agent = true
 
     db.vm.provision "ansible" do |ansible|
-      ansible.playbook       = "provisioning/site.yml"
+      ansible.playbook       = "provisioning/web-servers.yml"
       ansible.inventory_path = "provisioning/hosts"
       ansible.limit = 'all'
     end
