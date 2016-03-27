@@ -13,7 +13,6 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   #config.vm.box = "base"
-  config.vm.box = "centos/7"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -27,8 +26,47 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.33.20"
 
+  config.vm.define :web do |db|
+    db.vm.box = "centos/7"
+    db.vm.box_url = "https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box"
+    db.vm.network "private_network", ip: "192.168.33.20"
+    db.ssh.forward_agent = true
+
+    db.vm.provision "ansible" do |ansible|
+      ansible.playbook       = "provisioning/site.yml"
+      ansible.inventory_path = "provisioning/hosts"
+      ansible.limit = 'all'
+    end
+  end
+
+  config.vm.define :db_master do |db|
+    db.vm.box = "centos/7"
+    db.vm.box_url = "https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box"
+    db.vm.network :forwarded_port, guest: 22, host: 2005,  id: "ssh"
+    db.vm.network :private_network, ip: "192.168.33.31"
+    db.ssh.forward_agent = true
+
+    db.vm.provision "ansible" do |ansible|
+      ansible.playbook       = "provisioning/db-servers.yml"
+      ansible.inventory_path = "provisioning/hosts"
+      ansible.limit = 'all'
+    end
+  end
+
+  config.vm.define :db_slave do |db|
+    db.vm.box = "centos7"
+    db.vm.box_url = "https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box"
+    db.vm.network :forwarded_port, guest: 22, host: 2006,  id: "ssh"
+    db.vm.network :private_network, ip: "192.168.33.32"
+    db.ssh.forward_agent = true
+
+    db.vm.provision "ansible" do |ansible|
+      ansible.playbook       = "provisioning/db-servers.yml"
+      ansible.inventory_path = "provisioning/hosts"
+      ansible.limit = 'all'
+    end
+  end
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
@@ -65,12 +103,7 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "provisioning/site.yml"
-    ansible.inventory_path = "provisioning/hosts"
-    ansible.limit = 'all'
-  end
 
   ## Add for sharing ssh key host and guest os
-  config.ssh.forward_agent = true
+  #config.ssh.forward_agent = true
 end
