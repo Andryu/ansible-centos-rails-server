@@ -24,6 +24,11 @@
         dest="~/.bash_profile"
         line="export PATH=$HOME/.rbenv/bin:$PATH"
 
+    #- name: add rbenv path to bash_profile
+    #  sudo: yes
+    #  sudo_user: vagrant
+    #  copy: src=files/rbenv.sh dest=/etc/profile.d/rbenv.sh
+
     - name: Eval rbenv init in ~/.profile
       sudo: yes
       sudo_user: vagrant
@@ -55,6 +60,8 @@
       register: rbenv_check_install
       changed_when: False
       ignore_errors: yes
+
+
 
     - name: Install ruby
       command: "sudo -iu  vagrant rbenv install {{ ruby_version }}"
