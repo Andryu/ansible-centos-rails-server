@@ -33,11 +33,11 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
     db.vm.network "private_network", ip: "192.168.33.20"
     db.ssh.forward_agent = true
 
-    db.vm.provision "ansible" do |ansible|
-      ansible.playbook       = "provisioning/web-servers.yml"
-      ansible.inventory_path = "provisioning/hosts"
-      ansible.limit = 'all'
-    end
+    #db.vm.provision "ansible" do |ansible|
+    #  ansible.playbook       = "provisioning/web-servers.yml"
+    #  ansible.inventory_path = "provisioning/development"
+    #  ansible.limit = 'all'
+    #end
   end
 
   config.vm.define :db_master do |db|
@@ -48,8 +48,8 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
     db.ssh.forward_agent = true
 
     db.vm.provision "ansible" do |ansible|
-      ansible.playbook       = "provisioning/db-servers.yml"
-      ansible.inventory_path = "provisioning/hosts"
+      ansible.playbook       = "provisioning/main.yml"
+      ansible.inventory_path = "provisioning/development"
       ansible.limit = 'all'
     end
   end
@@ -62,8 +62,8 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
     db.ssh.forward_agent = true
 
     db.vm.provision "ansible" do |ansible|
-      ansible.playbook       = "provisioning/db-servers.yml"
-      ansible.inventory_path = "provisioning/hosts"
+      ansible.playbook       = "provisioning/main.yml"
+      ansible.inventory_path = "provisioning/development"
       ansible.limit = 'all'
     end
   end

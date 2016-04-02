@@ -1,0 +1,25 @@
+- name: add repo
+  command: rpm -ih http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm creates=/etc/yum.repos.d/mysql-community.repo
+
+- name: install mysql-community-server
+  yum: name=mysql-community-server state=installed
+
+- name: install MySQL-python for ansible mysql_user module
+  yum: name=MySQL-python state=installed
+
+- name: start server
+  service: name=mysqld state=started enabled=yes
+
+- name: save-mysql-tmp-password.sh
+  script: files/save-mysql-tmp-password.sh creates=/root/.tmp.my.cnf
+
+- name: set new password
+  script: files/change-root-password.sh creates=/root/.my.cnf
+
+- name: create new user
+  shell: mysql -e "GRANT ALL ON *.* TO vagrant IDENTIFIED BY 'FooBar12345@' "
+
+- name: generate server-id
+  shell:
+    hostname -I | sed -e 's/ /n/' | grep -v '^$' | tail -1 | awk -F. '{ print $3 * 256 + $4 }'
+  register: mysql_server_id
