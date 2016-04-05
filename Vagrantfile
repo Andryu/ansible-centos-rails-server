@@ -26,12 +26,14 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
+  config.ssh.forward_agent = true
+  config.ssh.insert_key   = false
 
   config.vm.define :web do |db|
     db.vm.box = "centos/7"
     db.vm.box_url = "https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box"
-    db.vm.network "private_network", ip: "192.168.33.20"
-    db.ssh.forward_agent = true
+    db.vm.network :forwarded_port, guest: 22, host: 2004, id: "ssh"
+    db.vm.network "private_network", ip: "192.168.33.20", virtualbox__intnet: "mynetwork"
 
     #db.vm.provision "ansible" do |ansible|
     #  ansible.playbook       = "provisioning/web-servers.yml"
@@ -43,9 +45,8 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
   config.vm.define :db_master do |db|
     db.vm.box = "centos/7"
     db.vm.box_url = "https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box"
-    db.vm.network :forwarded_port, guest: 22, host: 2005,  id: "ssh"
-    db.vm.network :private_network, ip: "192.168.33.31"
-    db.ssh.forward_agent = true
+    db.vm.network :forwarded_port, guest: 22, host: 2005, id: "ssh"
+    db.vm.network :private_network, ip: "192.168.33.31", virtualbox__intnet: "mynetwork"
 
     db.vm.provision "ansible" do |ansible|
       ansible.playbook       = "provisioning/main.yml"
@@ -58,8 +59,7 @@ Vagrant.configure(VAGRANT_FILE_API_VERSION) do |config|
     db.vm.box = "centos7"
     db.vm.box_url = "https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box"
     db.vm.network :forwarded_port, guest: 22, host: 2006,  id: "ssh"
-    db.vm.network :private_network, ip: "192.168.33.32"
-    db.ssh.forward_agent = true
+    db.vm.network :private_network, ip: "192.168.33.32", virtualbox__intnet: "mynetwork"
 
     db.vm.provision "ansible" do |ansible|
       ansible.playbook       = "provisioning/main.yml"

@@ -1,0 +1,16 @@
+mysql_root_db_pass: root_pass
+mysql_port: 3306
+mysql_bind_address: "0.0.0.0"
+mysql_db_id: 2
+mysql_repl_role: slave
+mysql_repl_master: master_host_name
+mysql_users:
+  - name: vagrant
+    pass: vagrant_pass
+    priv: "*.*:ALL"
+    host: "%"
+mysql_db:
+  - name: hogehoge
+mysql_repl_user:
+  - name: repl
+  - pass: repl_pass

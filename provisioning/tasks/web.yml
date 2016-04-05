@@ -1,90 +1,82 @@
 ---
-- hosts: web-servers
-  sudo: true
-  user: vagrant
-  vars:
-    rbenv_root: ~/.rbenv
-    ruby_version: 2.2.2
+- name: Install dependencies for rbenv
+  yum: name={{ item }} state=latest
+  with_items:
+    - git
 
-  tasks:
-    - name: Install dependencies for rbenv
-      yum: name={{ item }} state=latest
-      with_items:
-        - git
+- name: Install rbenv
+  sudo: yes
+  sudo_user: vagrant
+  git: repo=https://github.com/sstephenson/rbenv.git dest={{ rbenv_root }}
 
-    - name: Install rbenv
-      sudo: yes
-      sudo_user: vagrant
-      git: repo=https://github.com/sstephenson/rbenv.git dest={{ rbenv_root }}
+- name: Add ~.rbenv/bin to PATH
+  sudo: yes
+  sudo_user: vagrant
+  lineinfile: >
+    dest="~/.bash_profile"
+    line="export PATH=$HOME/.rbenv/bin:$PATH"
 
-    - name: Add ~.rbenv/bin to PATH
-      sudo: yes
-      sudo_user: vagrant
-      lineinfile: >
-        dest="~/.bash_profile"
-        line="export PATH=$HOME/.rbenv/bin:$PATH"
+#- name: add rbenv path to bash_profile
+#  sudo: yes
+#  sudo_user: vagrant
+#  copy: src=files/rbenv.sh dest=/etc/profile.d/rbenv.sh
 
-    #- name: add rbenv path to bash_profile
-    #  sudo: yes
-    #  sudo_user: vagrant
-    #  copy: src=files/rbenv.sh dest=/etc/profile.d/rbenv.sh
+- name: Eval rbenv init in ~/.profile
+  sudo: yes
+  sudo_user: vagrant
+  lineinfile: >
+    dest="~/.bash_profile"
+    line='eval "$(rbenv init -)"'
 
-    - name: Eval rbenv init in ~/.profile
-      sudo: yes
-      sudo_user: vagrant
-      lineinfile: >
-        dest="~/.bash_profile"
-        line='eval "$(rbenv init -)"'
+# CentOS installの場合
+- name: Install dependencies for ruby-build (see. https://github.com/sstephenson/ruby-build/wiki)
+  yum: name={{item}} state=latest
+  with_items:
+    - gcc
+    - automake
+    - gdbm-devel
+    - libffi-devel
+    - libyaml-devel
+    - openssl-devel
+    - ncurses-devel
+    - readline-devel
+    - zlib-devel
 
-    # CentOS installの場合
-    - name: Install dependencies for ruby-build (see. https://github.com/sstephenson/ruby-build/wiki)
-      yum: name={{item}} state=latest
-      with_items:
-        - gcc
-        - automake
-        - gdbm-devel
-        - libffi-devel
-        - libyaml-devel
-        - openssl-devel
-        - ncurses-devel
-        - readline-devel
-        - zlib-devel
+- name: Install ruby-build as rbenv plugin
+  sudo: yes
+  sudo_user: vagrant
+  git: repo=https://github.com/sstephenson/ruby-build.git dest={{ rbenv_root }}/plugins/ruby-build
 
-    - name: Install ruby-build as rbenv plugin
-      sudo: yes
-      sudo_user: vagrant
-      git: repo=https://github.com/sstephenson/ruby-build.git dest={{ rbenv_root }}/plugins/ruby-build
-
-    - name: Check if version is installed ruby
-      shell: "sudo -iu vagrant rbenv version | grep {{ ruby_version }}"
-      register: rbenv_check_install
-      changed_when: False
-      ignore_errors: yes
+- name: Check if version is installed ruby
+  shell: "sudo -iu vagrant rbenv version | grep {{ ruby_version }}"
+  register: rbenv_check_install
+  changed_when: False
+  ignore_errors: yes
 
 
 
-    - name: Install ruby
-      command: "sudo -iu  vagrant rbenv install {{ ruby_version }}"
-      when: rbenv_check_install|failed
+- name: Install ruby
+  command: "sudo -iu  vagrant rbenv install {{ ruby_version }}"
+  when: rbenv_check_install|failed
 
-    - name: Check if version is the default ruby version
-      shell: "sudo -iu vagrant rbenv version | grep {{ ruby_version }}"
-      register: rbenv_check_default
-      changed_when: False
-      ignore_errors: yes
+- name: Check if version is the default ruby version
+  shell: "sudo -iu vagrant rbenv version | grep {{ ruby_version }}"
+  register: rbenv_check_default
+  changed_when: False
+  ignore_errors: yes
 
-    - name: Set default ruby version
-      command: "sudo -iu vagrant rbenv global {{ ruby_version }}"
-      when: rbenv_check_default|failed
+- name: Set default ruby version
+  command: "sudo -iu vagrant rbenv global {{ ruby_version }}"
+  when: rbenv_check_default|failed
 
-    - name: Install dependencies for nokogiri
-      yum: name={{ item }} state=latest
-      with_items:
-        - patch
+- name: Install dependencies for nokogiri
+  yum: name={{ item }} state=latest
+  with_items:
+    - patch
 
-    - name: Install rails and bundler
-      sudo_user: vagrant
-      gem: name={{ item }} executable=.rbenv/shims/gem user_install=False
-      with_items:
-        - rails
-        - bundler
+- name: Install rails and bundler
+  sudo_user: vagrant
+  gem: name={{ item }} executable=.rbenv/shims/gem user_install=False
+  with_items:
+    - rails
+    - bundler

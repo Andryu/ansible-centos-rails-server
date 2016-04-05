@@ -1,0 +1,12 @@
+---
+- hosts: master
+  sudo: true
+  user: vagrant
+  tasks:
+    - include: tasks/mysql.yml
+
+- hosts: slave
+  sudo: true
+  user: vagrant
+  tasks:
+    - include: tasks/mysql.yml
