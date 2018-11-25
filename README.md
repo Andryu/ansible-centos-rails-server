@@ -31,8 +31,4 @@ port install ansible
 
 # Feature
 
-* Nginx  
-* DB server  
-* 環境ごとの設定(roleなども)  
-* ディレクトリ構成  
 * クライアントOSも仮想サーバーにした方が、MAC, Windows気にせず使えそう
