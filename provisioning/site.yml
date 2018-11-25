@@ -79,5 +79,4 @@
       sudo_user: vagrant
       gem: name={{ item }} executable=.rbenv/shims/gem user_install=False
       with_items:
-        - rails
         - bundler
